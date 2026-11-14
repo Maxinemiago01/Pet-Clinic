@@ -8,6 +8,5 @@ test-results/
 playwright-report/
 *.log
 .DS_Store
-downloads/*.apk
 *.keystore
 *.jks

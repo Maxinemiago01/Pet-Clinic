@@ -134,13 +134,13 @@ For this simple demo, removing or replacing a profile photo does not delete its 
 
 `npm test` simulates Supabase responses and checks authentication, CRUD, private-photo requests, retries, pagination, and responsive screens. It does not send emails or upload files to the live account. See `docs/verification.md` for the latest results and live verification scope.
 
-## Android download
+## Local Android setup
 
-The Android build workflow is `.github/workflows/android.yml`. It builds a signed demo APK and publishes it with a download QR to GitHub Releases. See [Android setup and download](docs/android.md).
+See [Android setup](docs/android.md) for instructions on building the app locally.
 
 ```powershell
 npm run android:sync
-npm run android:qr
+npm run android:open
 ```
 
 ## References
