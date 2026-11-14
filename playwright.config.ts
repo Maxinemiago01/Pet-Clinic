@@ -10,7 +10,7 @@ export default defineConfig({
   timeout: 45000,
   use: {
     baseURL: 'http://127.0.0.1:8100',
-    viewport: { width: 1440, height: 1000 },
+    viewport: { width: 390, height: 844 },
     timezoneId: 'Asia/Manila',
     launchOptions: existsSync(chrome) ? { executablePath: chrome } : {},
     screenshot: 'only-on-failure',

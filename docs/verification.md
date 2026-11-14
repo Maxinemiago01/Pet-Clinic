@@ -69,7 +69,7 @@ No verification or recovery email was requested. Existing remote Firebase and Cl
 | Registration password mismatch              | Shows an error without registering                                      |
 | Made-up email registration                  | Opens the notebook immediately; password is absent from session storage |
 | Confirmation accidentally enabled           | Settings check blocks signup before requesting an email                 |
-| Privacy links and notebook navigation       | Open real destinations and return correctly                             |
+| Notebook navigation                         | Open real destinations and return correctly                             |
 | Add / edit pet and remove photo             | Persist changes using plain JSON; temporary signed URL is excluded      |
 | Photo selection                             | Creates a JPEG preview and uploads to the owner's storage folder        |
 | Unsupported image / upload permission error | Shows an error; retry works                                             |

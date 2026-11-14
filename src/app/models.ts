@@ -48,7 +48,7 @@ export function petAge(birthday: string): string {
   const now = new Date();
   let months = (now.getFullYear() - birth.getFullYear()) * 12 + now.getMonth() - birth.getMonth();
   if (now.getDate() < birth.getDate()) months--;
-  if (months < 1) return 'Less than a month old';
+  if (months < 1) return '';
   if (months < 12) return `${months} month${months === 1 ? '' : 's'} old`;
   const years = Math.floor(months / 12);
   return `${years} year${years === 1 ? '' : 's'} old`;

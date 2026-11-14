@@ -1,15 +1,16 @@
 import { Component } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { IonContent, IonIcon, IonSpinner, NavController } from '@ionic/angular';
+import { IonContent, IonIcon, NavController } from '@ionic/angular';
 import { AuthService } from '../../services/auth.service';
 import { errorMessage } from '../../services/errors';
 
 @Component({
   selector: 'app-auth',
   standalone: true,
-  imports: [FormsModule, RouterLink, IonContent, IonIcon, IonSpinner],
+  imports: [FormsModule, RouterLink, IonContent, IonIcon],
   templateUrl: './auth.page.html',
+  styleUrl: './auth.page.scss',
 })
 export class AuthPage {
   isRegister = false;
@@ -32,7 +33,9 @@ export class AuthPage {
     this.password = '';
     this.confirmPassword = '';
     this.error = '';
-    if (this.auth.isLoggedIn) void this.router.navigateByUrl('/app', { replaceUrl: true });
+    if (this.auth.isLoggedIn) {
+      void this.router.navigateByUrl('/app', { replaceUrl: true });
+    }
   }
 
   async submit(form: NgForm): Promise<void> {
@@ -44,8 +47,11 @@ export class AuthPage {
     }
     this.busy = true;
     try {
-      if (this.isRegister) await this.auth.register(this.email, this.password);
-      else await this.auth.login(this.email, this.password);
+      if (this.isRegister) {
+        await this.auth.register(this.email, this.password);
+      } else {
+        await this.auth.login(this.email, this.password);
+      }
       this.password = '';
       this.confirmPassword = '';
       await this.nav.navigateRoot('/app', { replaceUrl: true });

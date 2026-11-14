@@ -1,10 +1,10 @@
-<a class="back-link" routerLink="/app"
-  ><ion-icon name="arrow-back" aria-hidden="true" /> Back to my pets</a
->
+<a class="back-link" routerLink="/app" aria-label="Back to my pets">
+  <ion-icon name="arrow-back" aria-hidden="true" />
+</a>
 @if (loading) {
 <div class="loading-state" role="status">
-  <ion-spinner name="crescent" />
-  <p>Opening their little story…</p>
+  <ion-spinner name="crescent" aria-hidden="true" />
+  <span class="visually-hidden">Loading pet profile</span>
 </div>
 } @else { @if (error) {
 <div class="message error" role="alert">
@@ -17,13 +17,19 @@
     @else { <ion-icon name="paw" aria-hidden="true" /> }
   </div>
   <div class="profile-intro">
-    <span class="handwritten">A very important little someone.</span>
+    <p class="profile-species">{{ pet.species }}</p>
     <h1>{{ pet.name }}<span class="heading-dot">.</span></h1>
-    <p>{{ pet.species }}<span class="dot-separator">·</span>{{ pet.breed || 'One of a kind' }}</p>
+    @if (pet.breed) {
+    <p>{{ pet.breed }}</p>
+    }
+    @let age = petAge(pet.birthday);
+    @if (age || pet.sex !== 'Unknown' || pet.weightKg != null) {
     <div class="profile-facts">
-      <span>{{ petAge(pet.birthday) }}</span>@if (pet.sex !== 'Unknown') {
-      <span>{{ pet.sex }}</span> }@if (pet.weightKg != null) { <span>{{ pet.weightKg }} kg</span> }
+      @if (age) { <span>{{ age }}</span> }
+      @if (pet.sex !== 'Unknown') { <span>{{ pet.sex }}</span> }
+      @if (pet.weightKg != null) { <span>{{ pet.weightKg }} kg</span> }
     </div>
+    }
   </div>
   <div class="profile-actions">
     <a class="button secondary" [routerLink]="['/app/pets', pet.id, 'edit']"
@@ -58,65 +64,22 @@
   }
 </div>
 }
-<section class="records-section">
+<section class="records-section" aria-label="Care records">
   <div class="section-heading">
-    <div>
-      <h2>Their care notebook<span class="heading-dot">.</span></h2>
-      <p>Every checkup and little milestone, all together.</p>
-    </div>
     <button class="button primary" type="button" (click)="openRecord()">
       <ion-icon name="add" aria-hidden="true" /> Add a record
     </button>
   </div>
-  <div class="filter-row record-tabs" aria-label="Filter care records">
-    <button
-      type="button"
-      [class.active]="filter === 'all'"
-      [attr.aria-pressed]="filter === 'all'"
-      (click)="filter = 'all'"
-    >
-      All records <span>{{ records.length }}</span>
-    </button>
-    <button
-      type="button"
-      [class.active]="filter === 'vaccination'"
-      [attr.aria-pressed]="filter === 'vaccination'"
-      (click)="filter = 'vaccination'"
-    >
-      Vaccinations <span>{{ count('vaccination') }}</span>
-    </button>
-    <button
-      type="button"
-      [class.active]="filter === 'medical'"
-      [attr.aria-pressed]="filter === 'medical'"
-      (click)="filter = 'medical'"
-    >
-      Medical history <span>{{ count('medical') }}</span>
-    </button>
-    <button
-      type="button"
-      [class.active]="filter === 'health'"
-      [attr.aria-pressed]="filter === 'health'"
-      (click)="filter = 'health'"
-    >
-      Health notes <span>{{ count('health') }}</span>
-    </button>
-  </div>
   <div class="record-list">
-    @for (item of filteredRecords; track item.id) {
+    @for (item of records; track item.id) {
     <article class="record-card">
-      <div class="record-icon" [class.health]="item.category === 'health'">
-        <ion-icon [name]="icon(item.category)" aria-hidden="true" />
-      </div>
       <div class="record-body">
         <div class="record-meta">
           <span>{{ labels[item.category] }}</span
           ><time [attr.datetime]="item.date">{{ item.date | date:'MMM d, y' }}</time>
         </div>
         <h3>{{ item.title }}</h3>
-        @if (item.veterinarian) {
-        <p>{{ item.veterinarian }}</p>
-        }@if (item.weightKg != null) {
+        @if (item.weightKg != null) {
         <p>Weight: <strong>{{ item.weightKg }} kg</strong></p>
         }@if (item.notes) {
         <p class="record-notes preserve-lines">{{ item.notes }}</p>
@@ -148,11 +111,7 @@
     } @empty {
     <div class="empty-state">
       <div class="empty-paw"><ion-icon name="document-text" aria-hidden="true" /></div>
-      <h3>A fresh page for {{ pet.name }}</h3>
-      <p>
-        {{ records.length ? 'No records in this category yet.' : 'First vaccine? Annual checkup?
-        Start their care story here.' }}
-      </p>
+      <p>No records</p>
     </div>
     }
   </div>
@@ -191,13 +150,12 @@
           </select></label
         >
         <label class="field full-width"
-          >{{ record.category === 'vaccination' ? 'Vaccine name' : record.category === 'medical' ?
-          'Visit or treatment' : 'Note title' }} *<input
+          >{{ recordTitleLabel }} *<input
             name="title"
             [(ngModel)]="record.title"
             required
             maxlength="150"
-            [placeholder]="record.category === 'vaccination' ? 'e.g. Rabies vaccination' : record.category === 'medical' ? 'e.g. Annual checkup' : 'e.g. Monthly weight check'"
+            [placeholder]="recordTitlePlaceholder"
         /></label>
         <label class="field"
           >Date *<input type="date" name="date" [(ngModel)]="record.date" required [max]="today"
@@ -208,7 +166,7 @@
             name="nextDate"
             [(ngModel)]="record.nextDate"
             [min]="today"
-          /><small>Optional. Choose today or a future date.</small></label
+          /></label
         >
         @if (record.category === 'health') {
         <label class="field full-width"

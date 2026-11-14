@@ -1,0 +1,62 @@
+.auth-page {
+  width: min(100% - 48px, 450px);
+  margin-inline: auto;
+  padding-block: clamp(28px, 7vh, 72px) 28px;
+}
+.auth-form-panel {
+  margin-top: clamp(28px, 5vh, 48px);
+}
+.auth-form-panel h1 {
+  margin-bottom: 16px;
+}
+.auth-switch {
+  display: flex;
+  gap: 27px;
+  border-bottom: 1px solid #dfcfbe;
+  margin-bottom: 25px;
+}
+.auth-switch a {
+  display: flex;
+  align-items: center;
+  min-height: 46px;
+  padding: 0 1px 9px;
+  border-bottom: 3px solid transparent;
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+.auth-switch a.selected {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+.auth-form-panel form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.password-input {
+  position: relative;
+  display: block;
+}
+.password-input input {
+  padding-right: 50px;
+}
+.password-input .icon-button {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+}
+.auth-submit {
+  width: 100%;
+  justify-content: space-between;
+  margin-top: 3px;
+  padding: 16px 20px;
+  min-height: 53px;
+}
+.auth-form-panel .message {
+  margin: 0;
+}
+
+.auth-page > .brand {
+  font-size: 1.85rem;
+}

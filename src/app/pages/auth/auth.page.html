@@ -3,119 +3,87 @@
     <a routerLink="/login" class="brand"
       ><img src="assets/paw.png" alt="" /><span>petcare<span class="brand-dot">.</span></span></a
     >
-    <div class="auth-layout">
-      <section class="auth-form-panel">
-        <div class="small-note">
-          <span class="note-line"></span> For the ones with paws (and personalities)
-        </div>
-        <h1>
-          {{ isRegister ? 'Their next chapter\nstarts with you.' : 'A little notebook.\nA lot of
-          love.' }}
-        </h1>
-        <p class="auth-intro">
-          {{ isRegister ? 'Make a little space for every big moment in your pet’s life.' : 'Photos,
-          checkups, and all the little things. Keep your pet’s story together.' }}
-        </p>
-        <div class="auth-switch" aria-label="Account access">
-          <a
-            routerLink="/login"
-            [class.selected]="!isRegister"
-            [attr.aria-current]="!isRegister ? 'page' : null"
-            >Log in</a
-          >
-          <a
-            routerLink="/register"
-            [class.selected]="isRegister"
-            [attr.aria-current]="isRegister ? 'page' : null"
-            >Create account</a
-          >
-        </div>
-        <form #authForm="ngForm" ngNativeValidate (ngSubmit)="submit(authForm)">
-          <label class="field"
-            >Email address
-            <input
-              type="email"
-              name="email"
-              [(ngModel)]="email"
-              required
-              email
-              maxlength="254"
-              autocomplete="email"
-              placeholder="alex@petcare.test"
-              [attr.aria-describedby]="isRegister ? null : 'email-hint'"
-              [disabled]="busy"
-            />
-          </label>
-          @if (!isRegister) {
-          <p id="email-hint" class="field-hint">
-            A made-up address is fine, for example alex@petcare.test. Remember your password; this
-            demo has no email recovery.
-          </p>
-          }
-          <label class="field"
-            >Password
-            <span class="password-input">
-              <input
-                [type]="showPassword ? 'text' : 'password'"
-                name="password"
-                [(ngModel)]="password"
-                required
-                minlength="8"
-                [autocomplete]="isRegister ? 'new-password' : 'current-password'"
-                placeholder="Enter password"
-                [disabled]="busy"
-              />
-              <button
-                type="button"
-                class="icon-button"
-                (click)="showPassword = !showPassword"
-                [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
-              >
-                <ion-icon [name]="showPassword ? 'eye-off' : 'eye'" aria-hidden="true" />
-              </button>
-            </span>
-          </label>
-          @if (isRegister) {
-          <label class="field"
-            >Confirm password
+    <section class="auth-form-panel">
+      <h1>{{ isRegister ? 'Create account' : 'Log in' }}</h1>
+      <div class="auth-switch" aria-label="Account access">
+        <a
+          routerLink="/login"
+          [class.selected]="!isRegister"
+          [attr.aria-current]="!isRegister ? 'page' : null"
+          >Log in</a
+        >
+        <a
+          routerLink="/register"
+          [class.selected]="isRegister"
+          [attr.aria-current]="isRegister ? 'page' : null"
+          >Create account</a
+        >
+      </div>
+      <form #authForm="ngForm" ngNativeValidate (ngSubmit)="submit(authForm)">
+        <label class="field"
+          >Email address
+          <input
+            type="email"
+            name="email"
+            [(ngModel)]="email"
+            required
+            email
+            maxlength="254"
+            autocomplete="email"
+            placeholder="Enter email"
+            [disabled]="busy"
+          />
+        </label>
+        <label class="field"
+          >Password
+          <span class="password-input">
             <input
               [type]="showPassword ? 'text' : 'password'"
-              name="confirmPassword"
-              [(ngModel)]="confirmPassword"
+              name="password"
+              [(ngModel)]="password"
               required
               minlength="8"
-              autocomplete="new-password"
-              placeholder="One more time"
+              [autocomplete]="isRegister ? 'new-password' : 'current-password'"
+              placeholder="Enter password"
               [disabled]="busy"
             />
-          </label>
-          } @if (error) {
-          <p class="message error" role="alert">{{ error }}</p>
-          }
-          <button class="button primary auth-submit" type="submit" [disabled]="busy">
-            @if (busy) { <ion-spinner name="crescent" aria-label="Please wait" /> } {{ busy ? 'Just
-            a moment…' : isRegister ? 'Create my account' : 'Open my notebook' }} @if (!busy) {
-            <ion-icon name="arrow-forward" aria-hidden="true" /> }
-          </button>
-        </form>
-        <p class="auth-footer">
-          A school demo made for pet people. <a routerLink="/privacy">Privacy & terms</a>
-        </p>
-      </section>
-      <aside class="auth-art" aria-label="A cat and dog together">
-        <img
-          class="auth-pet-photo"
-          src="assets/cat-and-dog.png"
-          alt="A fluffy orange cat leaning against a happy black and white dog"
-        />
-        <div class="photo-caption">
-          <ion-icon name="heart" aria-hidden="true" /><span
-            >Little paws.<br /><strong>A whole lot of heart.</strong></span
-          >
-        </div>
-        <span class="photo-sticker">Every pet has a story.</span>
-      </aside>
-    </div>
-    <p class="auth-bottom">One home for their happy, healthy lives.</p>
+            <button
+              type="button"
+              class="icon-button"
+              (click)="showPassword = !showPassword"
+              [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+            >
+              <ion-icon [name]="showPassword ? 'eye-off' : 'eye'" aria-hidden="true" />
+            </button>
+          </span>
+        </label>
+        @if (isRegister) {
+        <label class="field"
+          >Confirm password
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            name="confirmPassword"
+            [(ngModel)]="confirmPassword"
+            required
+            minlength="8"
+            autocomplete="new-password"
+            placeholder="Enter password"
+            [disabled]="busy"
+          />
+        </label>
+        } @if (error) {
+        <p class="message error" role="alert">{{ error }}</p>
+        }
+        <button
+          class="button primary auth-submit"
+          type="submit"
+          [disabled]="busy"
+          [attr.aria-busy]="busy"
+        >
+          {{ isRegister ? 'Create my account' : 'Login' }}
+          <ion-icon name="arrow-forward" aria-hidden="true" />
+        </button>
+      </form>
+    </section>
   </div>
 </ion-content>

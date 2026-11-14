@@ -103,32 +103,40 @@ export class AuthService {
   async getToken(): Promise<string> {
     if (!this.session) throw new Error('Your session ended. Please log in again.');
     if (this.session.expiresAt > Date.now() + 60000) return this.session.accessToken;
-    if (!this.refreshing)
-      this.refreshing = this.refreshToken().finally(() => (this.refreshing = null));
+    if (!this.refreshing) {
+      this.refreshing = this.refreshToken().finally(() => {
+        this.refreshing = null;
+      });
+    }
     return this.refreshing;
   }
 
   private async refreshToken(): Promise<string> {
-    const generation = this.generation;
+    const session = this.session;
+    if (!session) throw new Error('Your session ended. Please log in again.');
+
+    const sessionGeneration = this.generation;
     try {
       const response = await firstValueFrom(
         this.http.post<AuthResponse>(
           `${this.authUrl}/token?grant_type=refresh_token`,
-          { refresh_token: this.session!.refreshToken },
+          { refresh_token: session.refreshToken },
           { headers: this.headers },
         ),
       );
-      if (!this.session || generation !== this.generation)
+      if (!this.session || sessionGeneration !== this.generation) {
         throw new Error('Your session ended. Please log in again.');
+      }
       this.saveResponse(response);
       return this.session.accessToken;
     } catch (error) {
       if (
         error instanceof HttpErrorResponse &&
         [400, 401, 403].includes(error.status) &&
-        generation === this.generation
-      )
+        sessionGeneration === this.generation
+      ) {
         this.clearSession();
+      }
       throw error;
     }
   }

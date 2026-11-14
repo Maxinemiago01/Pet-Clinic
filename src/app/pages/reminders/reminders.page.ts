@@ -11,6 +11,7 @@ import { errorMessage } from '../../services/errors';
   standalone: true,
   imports: [DatePipe, RouterLink, IonIcon, IonSpinner],
   templateUrl: './reminders.page.html',
+  styleUrl: './reminders.page.scss',
 })
 export class RemindersPage implements OnInit {
   pets: Pet[] = [];
@@ -34,9 +35,14 @@ export class RemindersPage implements OnInit {
         this.petService.getRecords(),
       ]);
       this.pets = pets;
-      this.records = records
-        .filter((record) => record.nextDate && pets.some((pet) => pet.id === record.petId))
-        .sort((a, b) => a.nextDate.localeCompare(b.nextDate));
+      const recordsWithDates: PetRecord[] = [];
+      for (const record of records) {
+        if (!record.nextDate) continue;
+        const petExists = pets.some((pet) => pet.id === record.petId);
+        if (petExists) recordsWithDates.push(record);
+      }
+      recordsWithDates.sort((first, second) => first.nextDate.localeCompare(second.nextDate));
+      this.records = recordsWithDates;
     } catch (error) {
       this.error = errorMessage(error);
     } finally {
@@ -45,10 +51,8 @@ export class RemindersPage implements OnInit {
   }
 
   petName(id: string): string {
-    return this.pets.find((pet) => pet.id === id)?.name || 'Your pet';
-  }
-  get overdueCount(): number {
-    return this.records.filter((record) => record.nextDate < this.today).length;
+    const pet = this.pets.find((pet) => pet.id === id);
+    return pet?.name || 'Your pet';
   }
 
   async markDone(record: PetRecord): Promise<void> {
@@ -56,8 +60,9 @@ export class RemindersPage implements OnInit {
     this.savingId = record.id;
     this.error = '';
     try {
-      const { id, ...data } = record;
-      await this.petService.saveRecord({ ...data, nextDate: '' }, id);
+      const { id, ...recordFields } = record;
+      recordFields.nextDate = '';
+      await this.petService.saveRecord(recordFields, id);
       this.records = this.records.filter((item) => item.id !== id);
     } catch (error) {
       this.error = errorMessage(error);

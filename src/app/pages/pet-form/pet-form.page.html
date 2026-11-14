@@ -1,25 +1,17 @@
-<a class="back-link" [routerLink]="id ? ['/app/pets', id] : ['/app']"
-  ><ion-icon name="arrow-back" aria-hidden="true" /> {{ id ? 'Back to profile' : 'Back to my pets'
-  }}</a
+<a
+  class="back-link"
+  [routerLink]="backLink"
+  [attr.aria-label]="id ? 'Back to profile' : 'Back to my pets'"
 >
+  <ion-icon name="arrow-back" aria-hidden="true" />
+</a>
 <div class="page-heading">
-  <div>
-    <span class="handwritten">A face you’ll never forget.</span>
-    <h1>
-      {{ id ? 'A little profile update' : 'Meet your new notebook star' }}<span class="heading-dot"
-        >.</span
-      >
-    </h1>
-    <p>
-      {{ id ? 'Keep their little details up to date.' : 'Start with the basics. You can add their
-      care records next.' }}
-    </p>
-  </div>
+  <h1>{{ id ? 'Edit pet profile' : 'Add a pet' }}</h1>
 </div>
 @if (loading) {
 <div class="loading-state" role="status">
-  <ion-spinner name="crescent" />
-  <p>Finding their details…</p>
+  <ion-spinner name="crescent" aria-hidden="true" />
+  <span class="visually-hidden">Loading pet profile</span>
 </div>
 } @else if (id && error && !pet.createdAt) {
 <div class="error-state" role="alert">
@@ -29,14 +21,12 @@
 </div>
 } @else {
 <form #petForm="ngForm" ngNativeValidate (ngSubmit)="save(petForm)" class="pet-form-layout">
-  <aside class="photo-upload-panel">
+  <div class="photo-upload-panel">
+    @if (previewUrl || pet.imageUrl) {
     <div class="profile-photo-preview">
-      @if (previewUrl || pet.imageUrl) {
-      <img [src]="previewUrl || pet.imageUrl" alt="Pet profile preview" /> } @else {
-      <ion-icon name="paw" aria-hidden="true" /> }
+      <img [src]="previewUrl || pet.imageUrl" alt="Pet profile preview" />
     </div>
-    <h2>Their best side</h2>
-    <p>A familiar face for their little notebook.</p>
+    }
     <input
       #photoInput
       type="file"
@@ -51,9 +41,11 @@
       type="button"
       (click)="photoInput.click()"
       [disabled]="saving || preparing"
+      [attr.aria-busy]="preparing"
     >
-      <ion-icon name="camera" aria-hidden="true" />{{ preparing ? 'Preparing photo…' : previewUrl ||
-      pet.imageUrl ? 'Change photo' : 'Choose photo' }}
+      @if (preparing) { <ion-spinner name="crescent" aria-hidden="true" /> } @else {
+      <ion-icon name="camera" aria-hidden="true" /> }
+      {{ previewUrl || pet.imageUrl ? 'Change photo' : 'Choose photo' }}
     </button>
     @if (previewUrl || pet.imageUrl) {
     <button
@@ -65,29 +57,24 @@
       Remove photo
     </button>
     }
-    <small>JPG, PNG, or WebP. Up to 10 MB.<br />A photo is optional.</small>
     @if (photoError) {
     <p class="message error" role="alert">{{ photoError }}</p>
     }
-  </aside>
-  <section class="notebook-panel form-panel">
-    <div class="section-heading">
-      <h2>The little details</h2>
-      <span class="required-note">* Required</span>
-    </div>
+  </div>
+  <div class="notebook-panel">
     <fieldset [disabled]="saving">
       <div class="form-grid">
         <label class="field"
-          >Pet’s name *<input
+          >Pet’s name<input
             name="name"
             [(ngModel)]="pet.name"
             required
             maxlength="80"
-            placeholder="What do you call your best friend?"
+            placeholder="Pet's name"
             autocomplete="off"
         /></label>
         <label class="field"
-          >Type of pet *<select name="species" [(ngModel)]="pet.species" required>
+          >Type of pet<select name="species" [(ngModel)]="pet.species" required>
             <option>Dog</option>
             <option>Cat</option>
             <option>Rabbit</option>
@@ -100,7 +87,7 @@
             name="breed"
             [(ngModel)]="pet.breed"
             maxlength="100"
-            placeholder="e.g. Golden retriever or mixed breed"
+            placeholder="Golden retriever"
         /></label>
         <label class="field"
           >Sex<select name="sex" [(ngModel)]="pet.sex">
@@ -120,23 +107,17 @@
             min="0.01"
             max="1000"
             step="0.01"
-            placeholder="e.g. 4.5"
+            placeholder="4.5"
         /></label>
         <label class="field full-width"
           >Allergies & special care<input
             name="allergies"
             [(ngModel)]="pet.allergies"
             maxlength="500"
-            placeholder="Food allergies, sensitivities, or things to remember"
+            placeholder="Food allergies"
         /></label>
         <label class="field full-width"
-          >A little about them<textarea
-            name="notes"
-            [(ngModel)]="pet.notes"
-            rows="4"
-            maxlength="2000"
-            placeholder="Their favorite toy, their quirks, or anything that makes them special."
-          ></textarea>
+          >Description<textarea name="notes" [(ngModel)]="pet.notes" rows="4" maxlength="2000"></textarea>
         </label>
       </div>
     </fieldset>
@@ -146,16 +127,20 @@
     <div class="form-actions">
       <a
         class="button secondary"
-        [routerLink]="id ? ['/app/pets', id] : ['/app']"
+        [routerLink]="backLink"
         [attr.aria-disabled]="saving"
         [class.disabled-link]="saving"
         >Cancel</a
-      ><button class="button primary" type="submit" [disabled]="saving || preparing">
-        @if (saving) { <ion-spinner name="crescent" /> } @else {
-        <ion-icon name="checkmark" aria-hidden="true" /> }{{ saving ? 'Saving their story…' : id ?
-        'Save changes' : 'Save pet profile' }}
+      ><button
+        class="button primary"
+        type="submit"
+        [disabled]="saving || preparing"
+        [attr.aria-busy]="saving"
+      >
+        @if (saving) { <ion-spinner name="crescent" aria-hidden="true" /> }
+        {{ id ? 'Save changes' : 'Save' }}
       </button>
     </div>
-  </section>
+  </div>
 </form>
 }

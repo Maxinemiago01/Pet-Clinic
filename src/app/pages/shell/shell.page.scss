@@ -1,0 +1,92 @@
+.app-layout {
+  min-height: 100dvh;
+}
+.account-avatar {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e7d7c2;
+  color: #71472d;
+  font-size: 1rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.workspace {
+  min-width: 0;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: calc(76px + env(safe-area-inset-bottom));
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  border-bottom: 1px solid var(--line);
+  justify-content: space-between;
+  min-height: 72px;
+  margin-inline: 15px;
+}
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.page-content {
+  width: 100%;
+  max-width: 480px;
+  margin-inline: auto;
+  flex: 1;
+  padding: 23px 15px 28px;
+}
+
+.mobile-brand {
+  font-size: 1.75rem;
+}
+
+.mobile-brand img {
+  width: 33px;
+  height: 33px;
+}
+
+.mobile-nav {
+  display: flex;
+  position: fixed;
+  z-index: 20;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 480px;
+  margin-inline: auto;
+  justify-content: space-around;
+  border-top: 1px solid #ded0bf;
+  background: #fffaf3;
+  padding: 6px 14px calc(6px + env(safe-area-inset-bottom));
+  min-height: 70px;
+}
+
+.mobile-nav a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 7px 10px;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+  min-width: 74px;
+  min-height: 55px;
+  border-radius: 12px;
+}
+
+.mobile-nav a.active {
+  color: var(--accent);
+  background: #f5e6d9;
+}
+
+.mobile-nav ion-icon {
+  font-size: 1.25rem;
+}

@@ -22,7 +22,8 @@ export class ImageService {
       const image = new Image();
       image.src = url;
       await image.decode();
-      const scale = Math.min(1, 800 / Math.max(image.naturalWidth, image.naturalHeight));
+      const longestSide = Math.max(image.naturalWidth, image.naturalHeight);
+      const scale = Math.min(1, 800 / longestSide);
       const canvas = document.createElement('canvas');
       canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
       canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
@@ -33,7 +34,13 @@ export class ImageService {
       context.drawImage(image, 0, 0, canvas.width, canvas.height);
       return await new Promise<Blob>((resolve, reject) => {
         canvas.toBlob(
-          (blob) => (blob ? resolve(blob) : reject(new Error('Could not prepare this photo.'))),
+          (blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error('Could not prepare this photo.'));
+            }
+          },
           'image/jpeg',
           0.82,
         );

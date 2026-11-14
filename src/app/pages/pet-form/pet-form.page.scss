@@ -1,0 +1,47 @@
+.pet-form-layout {
+  display: grid;
+  align-items: start;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 21px;
+}
+.photo-upload-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: #f3e8d9;
+  border: 1px solid #e6d5be;
+  border-radius: 23px;
+  padding: 23px 20px;
+}
+.profile-photo-preview {
+  background: #e6d7c3;
+  border-radius: 38% 38% 40% 40%;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border: 6px solid #fffaf3;
+  width: 130px;
+  height: 130px;
+  margin-bottom: 16px;
+}
+.profile-photo-preview > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.photo-upload-panel > .button {
+  font-size: 0.84rem;
+  padding-inline: 15px;
+}
+.photo-upload-panel .message {
+  width: 100%;
+  text-align: left;
+  margin-bottom: 0;
+}
+.notebook-panel {
+  border: 1px solid var(--line);
+  background: #fffdfa;
+  border-radius: 22px;
+  padding: 22px 19px;
+}

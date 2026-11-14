@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { IonIcon, IonSpinner } from '@ionic/angular';
@@ -10,8 +10,9 @@ import { errorMessage } from '../../services/errors';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [DatePipe, FormsModule, RouterLink, IonIcon, IonSpinner],
+  imports: [FormsModule, RouterLink, IonIcon, IonSpinner],
   templateUrl: './home.page.html',
+  styleUrl: './home.page.scss',
 })
 export class HomePage implements OnInit {
   pets: Pet[] = [];
@@ -20,7 +21,7 @@ export class HomePage implements OnInit {
   error = '';
   search = '';
   filter = 'All pets';
-  filters = ['All pets', 'Dogs', 'Cats', 'Other pets'];
+  filters = ['All pets', 'Dogs', 'Cats'];
   petAge = petAge;
   today = today();
   constructor(private petService: PetService) {}
@@ -32,41 +33,45 @@ export class HomePage implements OnInit {
     this.loading = true;
     this.error = '';
     try {
-      [this.pets, this.records] = await Promise.all([
+      const [pets, records] = await Promise.all([
         this.petService.getPets(),
         this.petService.getRecords(),
       ]);
+      this.pets = pets;
+      this.records = records;
     } catch (error) {
-      this.error = errorMessage(error);
+      if (error instanceof HttpErrorResponse && error.status === 0) {
+        this.error = 'Couldn’t load pets.';
+      } else {
+        this.error = errorMessage(error);
+      }
     } finally {
       this.loading = false;
     }
   }
 
   get filteredPets(): Pet[] {
-    return this.pets.filter((pet) => {
-      const matchesSearch = `${pet.name} ${pet.breed} ${pet.species}`
-        .toLowerCase()
-        .includes(this.search.trim().toLowerCase());
-      const matchesFilter =
-        this.filter === 'All pets' ||
-        (this.filter === 'Dogs' && pet.species === 'Dog') ||
-        (this.filter === 'Cats' && pet.species === 'Cat') ||
-        (this.filter === 'Other pets' && !['Dog', 'Cat'].includes(pet.species));
-      return matchesSearch && matchesFilter;
-    });
-  }
+    const searchText = this.search.trim().toLowerCase();
+    const matchingPets: Pet[] = [];
 
-  get reminders(): PetRecord[] {
-    return this.records
-      .filter((record) => record.nextDate && this.pets.some((pet) => pet.id === record.petId))
-      .sort((a, b) => a.nextDate.localeCompare(b.nextDate));
+    for (const pet of this.pets) {
+      const petDetails = `${pet.name} ${pet.breed} ${pet.species}`.toLowerCase();
+      if (!petDetails.includes(searchText)) continue;
+      if (this.filter === 'Dogs' && pet.species !== 'Dog') continue;
+      if (this.filter === 'Cats' && pet.species !== 'Cat') continue;
+      matchingPets.push(pet);
+    }
+
+    return matchingPets;
   }
 
   get dueCount(): number {
-    return this.reminders.filter((record) => record.nextDate <= this.today).length;
-  }
-  petName(id: string): string {
-    return this.pets.find((pet) => pet.id === id)?.name || 'Your pet';
+    let numberDue = 0;
+    for (const record of this.records) {
+      if (!record.nextDate || record.nextDate > this.today) continue;
+      const petExists = this.pets.some((pet) => pet.id === record.petId);
+      if (petExists) numberDue++;
+    }
+    return numberDue;
   }
 }

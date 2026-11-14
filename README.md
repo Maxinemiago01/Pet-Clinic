@@ -77,7 +77,6 @@ src/app/
     pet-form/               Add and edit profiles
     pet-detail/             Pet details and care records
     reminders/              Due dates and reminder completion
-    privacy/                Demo privacy information
 src/environments/
   environment.ts            Supabase public configuration
 supabase/

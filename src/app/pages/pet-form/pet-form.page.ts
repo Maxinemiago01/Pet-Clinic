@@ -12,9 +12,11 @@ import { errorMessage } from '../../services/errors';
   standalone: true,
   imports: [FormsModule, RouterLink, IonIcon, IonSpinner],
   templateUrl: './pet-form.page.html',
+  styleUrl: './pet-form.page.scss',
 })
 export class PetFormPage implements OnInit, OnDestroy {
   id = '';
+  backLink = ['/app'];
   pet: Omit<Pet, 'id'> = {
     name: '',
     species: 'Dog',
@@ -46,7 +48,10 @@ export class PetFormPage implements OnInit, OnDestroy {
   ) {}
   ngOnInit(): void {
     this.id = this.route.snapshot.paramMap.get('id') || '';
-    if (this.id) void this.load();
+    if (this.id) {
+      this.backLink = ['/app/pets', this.id];
+      void this.load();
+    }
   }
   ngOnDestroy(): void {
     this.clearPreview();
@@ -67,15 +72,15 @@ export class PetFormPage implements OnInit, OnDestroy {
 
   async choosePhoto(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
+    const file = input.files?.item(0);
     if (!file) return;
     this.preparing = true;
     this.photoError = '';
     try {
-      const prepared = await this.images.prepare(file);
+      const preparedPhoto = await this.images.prepare(file);
       this.clearPreview();
-      this.photo = prepared;
-      this.previewUrl = URL.createObjectURL(prepared);
+      this.photo = preparedPhoto;
+      this.previewUrl = URL.createObjectURL(preparedPhoto);
     } catch (error) {
       this.photoError = errorMessage(error);
     } finally {
@@ -99,7 +104,8 @@ export class PetFormPage implements OnInit, OnDestroy {
   async save(form: NgForm): Promise<void> {
     if (form.invalid || this.saving || this.preparing) return;
     this.error = '';
-    if (!this.pet.name.trim()) {
+    const petName = this.pet.name.trim();
+    if (!petName) {
       this.error = 'Please enter your pet’s name.';
       return;
     }
@@ -110,23 +116,23 @@ export class PetFormPage implements OnInit, OnDestroy {
         this.photo = null;
       }
       const now = new Date().toISOString();
-      const saved = await this.pets.savePet(
-        {
-          ...this.pet,
-          name: this.pet.name.trim(),
-          breed: this.pet.breed.trim(),
-          allergies: this.pet.allergies.trim(),
-          notes: this.pet.notes.trim(),
-          weightKg:
-            this.pet.weightKg === null || this.pet.weightKg === undefined
-              ? null
-              : Number(this.pet.weightKg),
-          createdAt: this.pet.createdAt || now,
-          updatedAt: now,
-        },
-        this.id || undefined,
-      );
-      await this.router.navigate(['/app/pets', saved.id], { replaceUrl: true });
+      let weightKg: number | null = null;
+      if (this.pet.weightKg != null) {
+        weightKg = Number(this.pet.weightKg);
+      }
+
+      const petToSave = {
+        ...this.pet,
+        name: petName,
+        breed: this.pet.breed.trim(),
+        allergies: this.pet.allergies.trim(),
+        notes: this.pet.notes.trim(),
+        weightKg,
+        createdAt: this.pet.createdAt || now,
+        updatedAt: now,
+      };
+      const savedPet = await this.pets.savePet(petToSave, this.id || undefined);
+      await this.router.navigate(['/app/pets', savedPet.id], { replaceUrl: true });
     } catch (error) {
       this.error = errorMessage(error);
     } finally {

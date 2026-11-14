@@ -20,7 +20,9 @@ export class PetService {
 
   async getPets(): Promise<Pet[]> {
     const pets = await this.list<Pet>('pets', { order: 'name.asc,id.asc' });
-    for (const pet of pets) pet.imageUrl = await this.images.getUrl(pet.imagePath);
+    for (const pet of pets) {
+      pet.imageUrl = await this.images.getUrl(pet.imagePath);
+    }
     return pets;
   }
 
@@ -32,9 +34,10 @@ export class PetService {
         params: { id: `eq.${id}`, limit: '1' },
       }),
     );
-    if (!pets[0]) throw new Error('This pet profile could not be found.');
-    pets[0].imageUrl = await this.images.getUrl(pets[0].imagePath);
-    return pets[0];
+    const pet = pets[0];
+    if (!pet) throw new Error('This pet profile could not be found.');
+    pet.imageUrl = await this.images.getUrl(pet.imagePath);
+    return pet;
   }
 
   async savePet(pet: Omit<Pet, 'id'>, id?: string): Promise<Pet> {
@@ -46,10 +49,11 @@ export class PetService {
   }
 
   async getRecords(petId?: string): Promise<PetRecord[]> {
-    return this.list<PetRecord>('pet_records', {
-      order: 'date.desc,id.asc',
-      ...(petId ? { petId: `eq.${petId}` } : {}),
-    });
+    const params: Record<string, string> = { order: 'date.desc,id.asc' };
+    if (petId) {
+      params['petId'] = `eq.${petId}`;
+    }
+    return this.list<PetRecord>('pet_records', params);
   }
 
   async saveRecord(record: Omit<PetRecord, 'id'>, id?: string): Promise<PetRecord> {
@@ -88,6 +92,7 @@ export class PetService {
   private async list<T>(table: string, params: Record<string, string>): Promise<T[]> {
     const headers = await this.headers();
     const items: T[] = [];
+    const pageSize = 100;
     let offset = 0;
     let page: T[];
     do {
@@ -97,34 +102,36 @@ export class PetService {
           params: {
             ...params,
             owner_id: `eq.${this.auth.uid}`,
-            limit: '100',
+            limit: String(pageSize),
             offset: String(offset),
           },
         }),
       );
       items.push(...page);
       offset += page.length;
-    } while (page.length === 100);
+    } while (page.length === pageSize);
     return items;
   }
 
   private async save<T>(table: string, data: object, id?: string): Promise<T> {
     const headers = await this.headers();
     const body = { ...data, owner_id: this.auth.uid };
-    let saved: T[];
-    if (id)
-      saved = await firstValueFrom(
+    let savedRows: T[];
+    if (id) {
+      savedRows = await firstValueFrom(
         this.http.patch<T[]>(`${this.baseUrl}/${table}`, body, {
           headers,
           params: { id: `eq.${id}` },
         }),
       );
-    else
-      saved = await firstValueFrom(
+    } else {
+      savedRows = await firstValueFrom(
         this.http.post<T[]>(`${this.baseUrl}/${table}`, body, { headers }),
       );
-    if (!saved[0]) throw new Error('This item no longer exists or you do not have access to it.');
-    return saved[0];
+    }
+    const savedItem = savedRows[0];
+    if (!savedItem) throw new Error('This item no longer exists or you do not have access to it.');
+    return savedItem;
   }
 
   private async remove(table: string, id: string): Promise<void> {

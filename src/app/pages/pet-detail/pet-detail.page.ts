@@ -3,7 +3,7 @@ import { DatePipe } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { IonIcon, IonSpinner } from '@ionic/angular';
-import { Pet, PetRecord, RecordCategory, petAge, recordLabels, today } from '../../models';
+import { Pet, PetRecord, petAge, recordLabels, today } from '../../models';
 import { PetService } from '../../services/pet.service';
 import { errorMessage } from '../../services/errors';
 
@@ -12,6 +12,7 @@ import { errorMessage } from '../../services/errors';
   standalone: true,
   imports: [DatePipe, FormsModule, RouterLink, IonIcon, IonSpinner],
   templateUrl: './pet-detail.page.html',
+  styleUrl: './pet-detail.page.scss',
 })
 export class PetDetailPage implements OnInit {
   @ViewChild('recordDialog') recordDialog!: ElementRef<HTMLDialogElement>;
@@ -21,7 +22,6 @@ export class PetDetailPage implements OnInit {
   records: PetRecord[] = [];
   loading = true;
   error = '';
-  filter: 'all' | RecordCategory = 'all';
   labels = recordLabels;
   petAge = petAge;
   today = today();
@@ -45,33 +45,24 @@ export class PetDetailPage implements OnInit {
   async load(): Promise<void> {
     this.loading = true;
     this.error = '';
-    const id = this.route.snapshot.paramMap.get('id')!;
     try {
-      [this.pet, this.records] = await Promise.all([
-        this.pets.getPet(id),
-        this.pets.getRecords(id),
+      const petId = this.route.snapshot.paramMap.get('id');
+      if (!petId) {
+        this.error = 'This pet profile could not be found.';
+        return;
+      }
+
+      const [pet, records] = await Promise.all([
+        this.pets.getPet(petId),
+        this.pets.getRecords(petId),
       ]);
+      this.pet = pet;
+      this.records = records;
     } catch (error) {
       this.error = errorMessage(error);
     } finally {
       this.loading = false;
     }
-  }
-
-  get filteredRecords(): PetRecord[] {
-    return this.records.filter(
-      (record) => this.filter === 'all' || record.category === this.filter,
-    );
-  }
-  count(category: RecordCategory): number {
-    return this.records.filter((record) => record.category === category).length;
-  }
-  icon(category: RecordCategory): string {
-    return category === 'vaccination'
-      ? 'medical'
-      : category === 'medical'
-        ? 'document-text'
-        : 'heart';
   }
 
   private blankRecord(): Omit<PetRecord, 'id'> {
@@ -89,31 +80,50 @@ export class PetDetailPage implements OnInit {
   }
 
   openRecord(record?: PetRecord): void {
+    const pet = this.pet;
+    if (!pet) return;
+
     this.today = today();
     this.editingRecordId = record?.id || '';
     this.originalNextDate = record?.nextDate || '';
     this.recordError = '';
     if (record) {
-      const { id, ...data } = record;
-      this.record = { ...data };
-    } else this.record = { ...this.blankRecord(), petId: this.pet!.id };
+      const { id, ...recordFields } = record;
+      this.record = recordFields;
+    } else {
+      this.record = this.blankRecord();
+      this.record.petId = pet.id;
+    }
     this.recordForm.resetForm(this.record);
     this.recordDialog.nativeElement.showModal();
   }
 
   get keepsOverdueDate(): boolean {
-    return (
-      !!this.record.nextDate &&
-      this.record.nextDate === this.originalNextDate &&
-      this.record.nextDate < this.today
-    );
+    const nextDate = this.record.nextDate;
+    if (!nextDate || nextDate !== this.originalNextDate) return false;
+    return nextDate < this.today;
+  }
+
+  get recordTitleLabel(): string {
+    if (this.record.category === 'vaccination') return 'Vaccine name';
+    if (this.record.category === 'medical') return 'Visit or treatment';
+    return 'Note title';
+  }
+
+  get recordTitlePlaceholder(): string {
+    if (this.record.category === 'vaccination') return 'e.g. Rabies vaccination';
+    if (this.record.category === 'medical') return 'e.g. Annual checkup';
+    return 'e.g. Monthly weight check';
   }
 
   async saveRecord(form: NgForm): Promise<void> {
-    if (form.invalid || this.saving) return;
+    const pet = this.pet;
+    if (form.invalid || this.saving || !pet) return;
+
     this.today = today();
     this.recordError = '';
-    if (!this.record.title.trim()) {
+    const recordTitle = this.record.title.trim();
+    if (!recordTitle) {
       this.recordError = 'Please give this record a title.';
       return;
     }
@@ -135,24 +145,24 @@ export class PetDetailPage implements OnInit {
     }
     this.saving = true;
     try {
-      const saved = await this.pets.saveRecord(
-        {
-          ...this.record,
-          petId: this.pet!.id,
-          title: this.record.title.trim(),
-          veterinarian: this.record.veterinarian.trim(),
-          notes: this.record.notes.trim(),
-          weightKg:
-            this.record.category === 'health' && this.record.weightKg != null
-              ? Number(this.record.weightKg)
-              : null,
-          createdAt: this.record.createdAt || new Date().toISOString(),
-        },
-        this.editingRecordId || undefined,
-      );
-      this.records = [...this.records.filter((record) => record.id !== saved.id), saved].sort(
-        (a, b) => b.date.localeCompare(a.date),
-      );
+      let weightKg: number | null = null;
+      if (this.record.category === 'health' && this.record.weightKg != null) {
+        weightKg = Number(this.record.weightKg);
+      }
+      const recordToSave = {
+        ...this.record,
+        petId: pet.id,
+        title: recordTitle,
+        veterinarian: this.record.veterinarian.trim(),
+        notes: this.record.notes.trim(),
+        weightKg,
+        createdAt: this.record.createdAt || new Date().toISOString(),
+      };
+      const savedRecord = await this.pets.saveRecord(recordToSave, this.editingRecordId || undefined);
+      const updatedRecords = this.records.filter((record) => record.id !== savedRecord.id);
+      updatedRecords.push(savedRecord);
+      updatedRecords.sort((first, second) => second.date.localeCompare(first.date));
+      this.records = updatedRecords;
       this.recordDialog.nativeElement.close();
     } catch (error) {
       this.recordError = errorMessage(error);
@@ -175,9 +185,10 @@ export class PetDetailPage implements OnInit {
     this.deleting = true;
     this.error = '';
     try {
-      if (this.deleteRecordTarget) {
-        await this.pets.deleteRecord(this.deleteRecordTarget.id);
-        this.records = this.records.filter((record) => record.id !== this.deleteRecordTarget!.id);
+      const recordToDelete = this.deleteRecordTarget;
+      if (recordToDelete) {
+        await this.pets.deleteRecord(recordToDelete.id);
+        this.records = this.records.filter((record) => record.id !== recordToDelete.id);
       } else {
         await this.pets.deletePet(this.pet.id);
         await this.router.navigateByUrl('/app', { replaceUrl: true });

@@ -1,0 +1,82 @@
+.date-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  min-height: 68px;
+  padding: 8px;
+  border-radius: 13px;
+  background: var(--sage);
+  color: var(--sage-ink);
+  font-size: 0.73rem;
+  line-height: 1.5;
+  flex-shrink: 0;
+}
+.date-tile strong {
+  font-size: 1.5rem;
+  line-height: 1.2;
+  font-weight: 800;
+}
+.reminder-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.reminder-row {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  background: #fffdfa;
+  border-radius: 18px;
+  flex-wrap: wrap;
+  padding: 18px;
+  gap: 13px;
+}
+.reminder-body {
+  flex: 1;
+  min-width: 0;
+}
+.record-category {
+  display: block;
+  color: var(--muted);
+  font-size: 0.74rem;
+  margin-bottom: 4px;
+}
+.reminder-body h2 {
+  font-size: 1.1rem;
+}
+.reminder-body > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-height: 44px;
+  font-size: 0.81rem;
+  color: var(--accent);
+}
+.reminder-body ion-icon {
+  font-size: 0.85rem;
+}
+.reminder-row .due-label {
+  margin: 0;
+  flex-shrink: 0;
+  margin-left: 70px;
+}
+.date-tile.is-overdue {
+  background: #f8e1d4;
+  color: #923a25;
+}
+.reminder-row .button {
+  flex-shrink: 0;
+  margin-left: auto;
+  font-size: 0.75rem;
+  padding-inline: 11px;
+}
+.reminder-row .date-tile {
+  width: 57px;
+  min-height: 62px;
+}
+
+.reminder-row .reminder-body {
+  flex-basis: calc(100% - 75px);
+}

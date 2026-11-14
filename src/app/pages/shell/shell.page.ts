@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { IonContent, IonIcon, NavController } from '@ionic/angular';
 import { AuthService } from '../../services/auth.service';
@@ -8,12 +7,12 @@ import { PetService } from '../../services/pet.service';
 @Component({
   selector: 'app-shell',
   standalone: true,
-  imports: [DatePipe, RouterLink, RouterLinkActive, RouterOutlet, IonContent, IonIcon],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet, IonContent, IonIcon],
   templateUrl: './shell.page.html',
+  styleUrl: './shell.page.scss',
   host: { '(document:visibilitychange)': 'refreshCareNotifications()' },
 })
 export class ShellPage implements OnInit {
-  now = new Date();
   constructor(
     public auth: AuthService,
     private nav: NavController,
