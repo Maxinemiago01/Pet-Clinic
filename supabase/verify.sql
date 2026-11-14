@@ -1,4 +1,3 @@
--- Optional database verification. Every fixture is rolled back at the end.
 begin;
 
 do $$

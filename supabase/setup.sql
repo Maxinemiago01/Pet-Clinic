@@ -1,5 +1,3 @@
--- Run once in the Supabase SQL Editor for the Petcare project.
--- Quoted column names match Angular models so the REST API returns usable JSON.
 begin;
 
 create table if not exists public.pets (
@@ -68,7 +66,6 @@ on conflict (id) do update set
   file_size_limit = 2097152,
   allowed_mime_types = array['image/jpeg'];
 
--- Each photo is stored at <signed-in-user-id>/<random-id>.jpg.
 drop policy if exists "Petcare owners manage their photos" on storage.objects;
 create policy "Petcare owners manage their photos"
   on storage.objects for all to authenticated

@@ -66,7 +66,6 @@ export class AuthService {
         headers: this.headers,
       }),
     );
-    // Demo accounts use made-up addresses, so sign-up must not send verification emails.
     if (!settings.mailer_autoconfirm) {
       throw new Error('Turn off Confirm email in Supabase Authentication to enable demo accounts.');
     }
@@ -95,7 +94,6 @@ export class AuthService {
           ),
         );
       } catch {
-        /* The local session is cleared even when the network is unavailable. */
       }
     }
   }

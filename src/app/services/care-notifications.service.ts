@@ -22,7 +22,6 @@ export class CareNotificationsService {
     try {
       const records = await loadRecords();
       await this.enqueue(async () => {
-        // A save, removal, or newer refresh may have changed the reminders while loading.
         if (versionAtStart !== this.reminderVersion) return;
         await this.syncNotifications(owner, records, () => true);
       });
@@ -112,7 +111,6 @@ export class CareNotificationsService {
           history[key] = time;
           continue;
         }
-        // A reminder added after 9 a.m. can fire now, but reopening the app must not replay it.
         if (timePassed && history[key] !== undefined) continue;
         highestId++;
         notificationsToSchedule.push({

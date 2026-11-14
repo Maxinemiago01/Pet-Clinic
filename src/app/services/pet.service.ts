@@ -41,7 +41,6 @@ export class PetService {
   }
 
   async savePet(pet: Omit<Pet, 'id'>, id?: string): Promise<Pet> {
-    // Signed photo URLs expire. Only the permanent path belongs in the database.
     const { imageUrl, ...data } = pet;
     const saved = await this.save<Pet>('pets', data, id);
     saved.imageUrl = imageUrl;
@@ -71,7 +70,6 @@ export class PetService {
 
   async deletePet(id: string): Promise<void> {
     const owner = this.auth.uid;
-    // The database foreign key removes the pet's records in the same transaction.
     await this.remove('pets', id);
     if (owner === this.auth.uid) await this.careNotifications.remove(owner, 'petId', id);
   }

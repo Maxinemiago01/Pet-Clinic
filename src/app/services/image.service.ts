@@ -84,7 +84,6 @@ export class ImageService {
       );
       return `${this.storageUrl}${response.signedURL}`;
     } catch (error) {
-      // A removed photo should not prevent opening the pet's care records.
       if (
         error instanceof HttpErrorResponse &&
         (error.status === 404 || String(error.error?.statusCode) === '404')

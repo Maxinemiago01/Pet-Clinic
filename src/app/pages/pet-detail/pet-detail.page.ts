@@ -131,7 +131,6 @@ export class PetDetailPage implements OnInit {
       this.recordError = 'Choose today or a future date for the next reminder.';
       return;
     }
-    // An existing overdue reminder may stay on the record when editing other fields.
     const invalidInput = this.recordDialog.nativeElement.querySelector<HTMLInputElement>(
       'input:invalid:not([name="nextDate"])',
     );

@@ -80,7 +80,6 @@ test('Android care alerts schedule both dates, replace edits, and cancel complet
     await page.evaluate(() => JSON.parse(localStorage.getItem('test-channel')!).vibration),
   ).toBe(true);
 
-  // A new Android WebView loses sessionStorage but retains the device's app storage.
   await page.evaluate(() => sessionStorage.clear());
   await page.reload();
   await expect(page.locator('.pet-card')).toBeVisible();
