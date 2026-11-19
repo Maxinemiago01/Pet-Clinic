@@ -36,17 +36,43 @@
       [disabled]="saving || preparing"
       aria-label="Choose pet profile photo"
     />
-    <button
-      class="button secondary"
-      type="button"
-      (click)="photoInput.click()"
-      [disabled]="saving || preparing"
-      [attr.aria-busy]="preparing"
-    >
-      @if (preparing) { <ion-spinner name="crescent" aria-hidden="true" /> } @else {
-      <ion-icon name="camera" aria-hidden="true" /> }
-      {{ previewUrl || pet.imageUrl ? 'Change photo' : 'Choose photo' }}
-    </button>
+    <div class="photo-actions">
+      @if (canTakePhoto) {
+      <input
+        #cameraInput
+        type="file"
+        accept="image/*"
+        capture="environment"
+        hidden
+        (change)="choosePhoto($event)"
+        [disabled]="saving || preparing"
+        aria-label="Take pet profile photo"
+      />
+      <button
+        class="button secondary"
+        type="button"
+        (click)="takePhoto(cameraInput)"
+        [disabled]="saving || preparing"
+      >
+        <ion-icon name="camera" aria-hidden="true" />
+        Take photo
+      </button>
+      }
+      <button
+        class="button secondary"
+        type="button"
+        (click)="photoInput.click()"
+        [disabled]="saving || preparing"
+      >
+        Choose photo
+      </button>
+    </div>
+    @if (preparing) {
+    <p class="photo-status" role="status">
+      <ion-spinner name="crescent" aria-hidden="true" />
+      Getting photo ready…
+    </p>
+    }
     @if (previewUrl || pet.imageUrl) {
     <button
       class="text-button"

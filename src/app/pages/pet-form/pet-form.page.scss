@@ -30,9 +30,27 @@
   height: 100%;
   object-fit: cover;
 }
-.photo-upload-panel > .button {
+.photo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+.photo-actions > .button {
   font-size: 0.84rem;
   padding-inline: 15px;
+}
+.photo-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 0;
+  font-size: 0.84rem;
+}
+.photo-status > ion-spinner {
+  width: 18px;
+  height: 18px;
 }
 .photo-upload-panel .message {
   width: 100%;
