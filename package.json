@@ -8,7 +8,8 @@
     "build": "ng build",
     "test": "playwright test",
     "android:sync": "npm run build && cap sync android",
-    "android:open": "cap open android"
+    "android:open": "cap open android",
+    "android:qr": "node scripts/generate-download-qr.mjs"
   },
   "dependencies": {
     "@angular/animations": "~20.3.35",
@@ -33,6 +34,7 @@
     "@angular/compiler-cli": "~20.3.35",
     "@capacitor/cli": "8.6.0",
     "@playwright/test": "^1.56.0",
+    "qrcode": "1.5.4",
     "typescript": "~5.9.2"
   }
 }

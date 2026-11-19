@@ -10,3 +10,4 @@ playwright-report/
 .DS_Store
 *.keystore
 *.jks
+downloads/
